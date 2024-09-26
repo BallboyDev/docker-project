@@ -1,0 +1,62 @@
+# docker build -t nhicdur .
+# docker run --name nhicdur -p 8889:8889 -p 8890:8890 -p 8080:8080 -p 10001:10001 --env=JAVA_OPTS="-Ddomain=api.nhic.or.kr:1443 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8889" -it --rm nhicdur
+
+FROM tomcat:8.5.95-jre17
+
+# unzip, vim, locales
+RUN apt update && \
+    apt install -y unzip vim locales
+
+# Dur 인코딩을 위한 설정
+# RUN locale-gen ko_KR.EUC-KR
+# ENV LC_ALL ko_KR.EUC-KR
+
+# Dur관련 lib copy
+COPY ./dur /app
+
+# nhic 관련 lib copy
+COPY ./nhic/nhic.war /usr/local/tomcat/webapps
+# COPY ./nhic/kicaproxy_client_linux.zip /home
+COPY ./nhic/kicaproxy_client_linux /home/kicaproxy_client_linux
+
+# nhic 운영을 위한 java 설정 파일 수정
+RUN rm /opt/java/openjdk/conf/security/java.security
+COPY ./nhic/java.security /opt/java/openjdk/conf/security
+
+# common file copy
+# RUN rm /root/.bashrc
+# COPY ./common/.bashrc /root
+COPY ./common/startup.sh /home
+
+WORKDIR /home
+# RUN unzip kicaproxy_client_linux.zip
+
+# broker 실행 권한 설정
+RUN chmod +x /app/bin/*.sh
+
+# proxy client 실행 권한 설정
+RUN chmod +x /home/kicaproxy_client_linux/crl
+RUN chmod +x /home/kicaproxy_client_linux/bin/*.sh
+
+RUN chmod +x /home/startup.sh
+
+# Dur broker 통신 포트
+EXPOSE 10001
+
+# 관리자 페이지 접근
+EXPOSE 8890
+# 프록시 클라이언트 접근
+EXPOSE 8889
+# 프록시 서버 통신
+EXPOSE 1454
+EXPOSE 1455
+# 백엔드 서버 통신
+EXPOSE 1443
+EXPOSE 1442
+
+# WORKDIR /home
+
+# CMD ["/bin/bash", "-c", "./startup.sh"]
+# ENTRYPOINT ["/home/startup.sh"]
+
+# RUN bash /home/startup.sh

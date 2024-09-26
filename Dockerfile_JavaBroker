@@ -1,0 +1,35 @@
+# docker build -t javabroker .
+# docker run -p 10001:10001 -it javabroker
+
+# Use a Linux-based image
+FROM ubuntu:latest
+
+SHELL ["/bin/bash", "-c"]
+
+# Install Java 8
+RUN apt-get update && \
+    apt-get install -y openjdk-8-jdk vim locales
+
+RUN locale-gen ko_KR.EUC-KR
+ENV LC_ALL ko_KR.EUC-KR
+
+# Set the JAVA_HOME environment variable
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+# Set the PATH environment variable
+ENV PATH $JAVA_HOME/bin:$PATH
+
+# Copy your application files to the image
+COPY . /app
+
+# Set the working directory
+WORKDIR /app
+
+# Grant execution permissions for the scripts
+RUN chmod +x /app/bin/*.sh
+
+# Document that the service listens on port 10001
+EXPOSE 10001
+
+# Define the command to run your application
+CMD ["sh", "./bin/startup.sh"]

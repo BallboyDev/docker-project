@@ -1,0 +1,37 @@
+# docker build -t nhic .
+# docker run --name nhic -p 8889:8889 -p 8890:8890 -p 8080:8080 --env=JAVA_OPTS="-Ddomain=api.nhic.or.kr:1443 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8889" -it --rm nhic
+
+FROM tomcat:8.5.95-jre17
+
+RUN apt update && \
+    apt install -y unzip
+
+COPY ./lib/nhic.war /usr/local/tomcat/webapps
+COPY ./lib/kicaproxy_client_linux.zip /home
+
+RUN rm /opt/java/openjdk/conf/security/java.security
+COPY ./lib/java.security /opt/java/openjdk/conf/security
+
+WORKDIR /home
+RUN unzip kicaproxy_client_linux.zip
+
+# proxy client 실행 권한 설정
+RUN chmod 777 /home/kicaproxy_client_linux/crl
+RUN chmod 777 /home/kicaproxy_client_linux/bin/shutdown.sh
+RUN chmod 777 /home/kicaproxy_client_linux/bin/startup.sh
+RUN chmod 777 /home/kicaproxy_client_linux/bin/restart.sh
+
+# 관리자 페이지 접근
+EXPOSE 8890
+# 프록시 클라이언트 접근
+EXPOSE 8889
+# 프록시 서버 통신
+EXPOSE 1454
+EXPOSE 1455
+# 백엔드 서버 통신
+EXPOSE 1443
+EXPOSE 1442
+
+WORKDIR /home/kicaproxy_client_linux
+
+RUN /home/kicaproxy_client_linux/bin/startup.sh
