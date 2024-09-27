@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: govlink-deploy
+  labels:
+    app: govlink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: govlink
+  template:
+    metadata:
+      labels:
+        app: govlink
+        ykiho: '31590764'
+        name: dentium
+    spec:
+      imagePullSecrets:
+      - name: dentalchart.kr.ncr.ntruss.com
+      containers:
+      - name: govlink-31590764
+        image: dentalchart.kr.ncr.ntruss.com/nhic:latest
+        env:
+        - name: JAVA_OPTS
+          value: -Ddomain=api.nhic.or.kr:1443 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8889
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 250m
