@@ -13,14 +13,14 @@ spec:
     metadata:
       labels:
         app: govlink
-        ykiho: '31590764'
+        ykiho: '99999999'
         name: dentium
     spec:
       imagePullSecrets:
-      - name: dentalchart.kr.ncr.ntruss.com
+      - name: docker-private-hub
       containers:
-      - name: govlink-31590764
-        image: dentalchart.kr.ncr.ntruss.com/nhic:latest
+      - name: govlink-99999999
+        image: docker-private-hub/nhic:latest
         env:
         - name: JAVA_OPTS
           value: -Ddomain=api.nhic.or.kr:1443 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8889
