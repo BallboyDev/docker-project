@@ -1,0 +1,15 @@
+services:
+  webserver:
+    image: nodeserver:1.0.0
+    ports:
+      - 8080:8080
+
+  nginx:
+    image: nginx:1.0.0
+    ports:
+      - 80:80
+
+  mariadb:
+    image: mariadb:latest
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
